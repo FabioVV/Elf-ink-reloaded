@@ -1,0 +1,58 @@
+
+.mural{
+    display: grid;
+    grid-template-columns: repeat(4, 320px);
+    grid-gap: 1rem;
+}
+
+.mural-option{
+    border-left: 1px solid white;
+    height: 100%;
+    padding: 10px;
+}
+
+.mural-title{
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mural-item{
+    /* box-shadow: rgba(240, 46, 170, 0.4) -5px 5px, rgba(240, 46, 170, 0.3) -10px 10px, rgba(240, 46, 170, 0.2) -15px 15px, rgba(240, 46, 170, 0.1) -20px 20px, rgba(240, 46, 170, 0.05) -25px 25px; */
+    max-width: 85%;
+    width: 255px;
+    margin: 0 auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 5px;
+    border: 1px solid rgb(107, 107, 107);
+    cursor: pointer;
+}
+
+.mural-content{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+    height: calc(100vh + 300px);
+}
+
+.mural-item-title{
+    overflow: hidden;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid white;
+}
+
+.mural-item-preview{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mural-item-time{
+    text-align: right;
+}
