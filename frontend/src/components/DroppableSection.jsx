@@ -30,7 +30,7 @@ function DroppableSection({ onDrop, children, title, status}) {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-            className='mural-content'>
+                className={`mural-content ${isOver ? "over-content" : ""}`}>
                 {children}
             </div>
         </div>

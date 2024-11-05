@@ -5,7 +5,7 @@ import DroppableSection from './DroppableSection'
 import DraggableItem from './DraggableItem'
 import Footer from './Footer'
 import { GetAllTasks } from '../lib/Task';
-import {EventsOn} from '../../wailsjs/runtime/runtime'
+import {EventsOn, EventsEmit} from '../../wailsjs/runtime/runtime'
 
 function Mural() {
     const [newTasks, setNewTasks] = useState([])
@@ -19,13 +19,18 @@ function Mural() {
 
     const handleDrop = (e, toStatus) => {
         const data = JSON.parse(e.dataTransfer.getData("text"))
-        
+
         if(data.status == toStatus){
-            alert('Move the task to another status')
+            window.flash("Move the task to another status", "error")
             return false
         }
         
+        const task = {id: data.id, status: toStatus}
+        updateTask(task)
+    }
 
+    const updateTask = (task) => {
+        EventsEmit('update_task_status', task)
     }
 
     const setupTasks = async () => {

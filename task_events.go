@@ -55,6 +55,22 @@ func createTask(app *App, name string) {
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 }
 
-func updateTask(app *App) {
+func updateTaskStatus(app *App, task map[string]interface{}) {
 
+	taskID := task["id"].(string)
+	newStatus := task["status"].(float64)
+
+	stmt, err := app.db.Prepare("UPDATE task SET status = ? WHERE id = ?")
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(newStatus, taskID)
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task -> "+err.Error())
+		return
+	}
+
+	runtime.EventsEmit(app.ctx, "reload_tasks")
 }

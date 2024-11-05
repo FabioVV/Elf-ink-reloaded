@@ -4,6 +4,7 @@ import {BrowserRouter} from 'react-router-dom';
 
 import App from './App'
 
+import './static/css/flash.css'
 import './static/css/default.css'
 import './static/css/simple.css'
 import './static/css/fontawesome/fontawesome.css'
