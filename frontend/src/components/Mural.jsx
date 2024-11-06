@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom"
 
 import '../static/css/mural.css'
 
@@ -18,6 +19,9 @@ function Mural() {
 
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const [menuVisible, setMenuVisible] = useState(false);
+    const [taskID, setTaskID] = useState('');
+
+    const navigate = useNavigate()
 
     const handleDrag = (e, fromStatus) =>{
         e.dataTransfer.setData("text", JSON.stringify({id: e.target.id, status: fromStatus}))
@@ -37,6 +41,10 @@ function Mural() {
 
     const updateTask = (task) => {
         EventsEmit('update_task_status', task)
+    }
+
+    const openTask = (taskID) => {
+        navigate(`/task/${taskID}`)
     }
 
     const setupTasks = async () => {
@@ -59,6 +67,7 @@ function Mural() {
         const scrollY = window.scrollY || window.pageYOffset;
 
         setMenuPosition({ x: e.clientX + scrollX, y: e.clientY + scrollY })    
+        setTaskID(e.target.id)
         setMenuVisible(true)
     }
 
@@ -89,6 +98,7 @@ function Mural() {
                         task={task}
                         handleDrag={handleDrag}
                         handleMenu={handleRightClickMenu}
+                        openTask={openTask}
                     >
                     </DraggableItem>
                 ))}
@@ -102,6 +112,7 @@ function Mural() {
                         task={task}
                         handleDrag={handleDrag}
                         handleMenu={handleRightClickMenu}
+                        openTask={openTask}
 
                     >
                     </DraggableItem>
@@ -116,6 +127,7 @@ function Mural() {
                         task={task}
                         handleDrag={handleDrag}
                         handleMenu={handleRightClickMenu}
+                        openTask={openTask}
 
                     >
                     </DraggableItem>
@@ -130,6 +142,8 @@ function Mural() {
                         task={task}
                         handleDrag={handleDrag}
                         handleMenu={handleRightClickMenu}
+                        openTask={openTask}
+
                     >
                     </DraggableItem>
                 ))}
@@ -142,6 +156,9 @@ function Mural() {
                 y={menuPosition.y}
                 visible={menuVisible}
                 onClose={handleCloseMenu}
+                taskID={taskID}
+                openTask={openTask}
+
             />
         </div>
     )

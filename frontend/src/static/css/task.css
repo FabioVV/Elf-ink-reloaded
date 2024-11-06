@@ -1,0 +1,21 @@
+.task-nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding: 3px;
+    background-color: gray;
+}
+
+.task-nav-title{
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.task-nav-return > button {
+    background-color: white !important;
+    color: black;
+    border-color: white;
+}
