@@ -40,10 +40,15 @@ func OpenDB() (*sql.DB, error) {
 	}
 
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS task (id INTEGER PRIMARY KEY, name VARCHAR(100), status SMALLINT DEFAULT 1, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-
 	if err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed to create SQLite table: %v", err)
+	}
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS task_item (id INTEGER PRIMARY KEY, name VARCHAR(100), content TEXT, status SMALLINT DEFAULT 1, task_id INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (task_id) REFERENCES task(id))")
+	if err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to create task_item table: %v", err)
 	}
 
 	return db, nil

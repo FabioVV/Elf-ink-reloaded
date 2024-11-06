@@ -15,10 +15,14 @@ type Task struct {
 	UpdatedAt    time.Time
 	CreatedAtStr string
 	UpdatedAtStr string
+	TotalTasks   int
 }
 
 func (a *App) GetTasks(status int) []Task {
-	rows, err := a.db.Query("SELECT id, name, content, status, created_at AS created_at, updated_at FROM task WHERE status = ?", status)
+	rows, err := a.db.Query(`SELECT T.id, T.name, T.status, T.created_at AS created_at, T.updated_at,
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id) AS total_tasks
+						FROM task AS T
+						WHERE status = ?`, status)
 	if err != nil {
 		return nil
 	}
@@ -28,7 +32,7 @@ func (a *App) GetTasks(status int) []Task {
 	for rows.Next() {
 		var task Task
 
-		if err := rows.Scan(&task.ID, &task.Name, &task.Content, &task.Status, &task.CreatedAt, &task.UpdatedAt); err != nil {
+		if err := rows.Scan(&task.ID, &task.Name, &task.Content, &task.Status, &task.CreatedAt, &task.UpdatedAt, &task.TotalTasks); err != nil {
 			runtime.LogError(a.ctx, err.Error())
 			return nil
 		}
@@ -50,7 +54,18 @@ func (a *App) GetTasks(status int) []Task {
 
 func createTask(app *App, name string) {
 	if name != "" {
-		app.db.Exec("INSERT INTO task (name) VALUES (?)", name)
+		stmt, err := app.db.Prepare("INSERT INTO task (name) VALUES (?)")
+		if err != nil {
+			runtime.LogError(app.ctx, "Error creating task -> "+err.Error())
+			return
+		}
+
+		_, err = stmt.Exec(name)
+		if err != nil {
+			runtime.LogError(app.ctx, "Error updating task -> "+err.Error())
+			return
+		}
+
 	}
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 }

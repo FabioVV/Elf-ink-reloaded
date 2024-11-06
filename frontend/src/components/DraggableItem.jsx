@@ -30,7 +30,7 @@ function DraggableItem({id, handleDrag, handleMenu, openTask, task}) {
             </div> */}
 
             <div className='mural-item-time'>
-                <span>Tasks: 0</span>
+                <span>Tasks: {task?.TotalTasks}</span>
                 <br/>
                 <span className='time'>Created at: {task?.CreatedAtStr}</span>
                 <br />
