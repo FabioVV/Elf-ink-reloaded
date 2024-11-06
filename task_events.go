@@ -18,6 +18,18 @@ type Task struct {
 	TotalTasks   int
 }
 
+type TaskItem struct {
+	ID           int
+	Name         string
+	Content      string
+	Status       int
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	CreatedAtStr string
+	UpdatedAtStr string
+	TotalTasks   int
+}
+
 func (a *App) GetTasks(status int) []Task {
 	rows, err := a.db.Query(`SELECT T.id, T.name, T.status, T.created_at AS created_at, T.updated_at,
 						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id) AS total_tasks
@@ -50,6 +62,10 @@ func (a *App) GetTasks(status int) []Task {
 	}
 
 	return tasks
+}
+
+func (a *App) getTaskItems(id string) []TaskItem {
+	return nil
 }
 
 func createTask(app *App, name string) {
