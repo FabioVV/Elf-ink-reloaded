@@ -1,0 +1,22 @@
+.menu-ul{
+    list-style: none;
+    margin: 0;
+    padding: 10px;
+}
+
+.menu-ul > li{
+    margin-bottom: 16px;
+    width: 150px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.menu-ul >li:last-child{
+    margin-bottom: 0;
+}
+
+
+.menu-ul > li:hover{
+    background-color: rgb(32, 32, 32);
+}
