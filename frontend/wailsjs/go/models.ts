@@ -12,6 +12,18 @@ export namespace main {
 	
 	    }
 	}
+	export class TaskItem {
+	
+	
+	    static createFrom(source: any = {}) {
+	        return new TaskItem(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	
+	    }
+	}
 
 }
 

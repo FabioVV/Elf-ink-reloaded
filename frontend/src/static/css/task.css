@@ -19,3 +19,73 @@
     color: black;
     border-color: white;
 }
+
+.task-container{
+    display: grid;
+    grid-template-columns: 30% 70%; /* Define two columns with specified widths */
+    gap: 10px; /* Optional: space between columns */
+    padding: 5px; /* Optional: padding around the grid */
+    height: 90vh;
+    overflow-x: hidden;
+}
+
+.task-container > div {
+    padding: 10px;
+    box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+.task-container > div:first-child{
+    border-right: 1px solid white;
+}
+
+.task-stuff{
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+.task-item-new{
+    border-bottom: 1px solid white;
+    width: 100%;
+    text-align: center;
+}
+
+.task-item-check{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-item-check > label{
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 8px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.task-item-check > span > input{
+    cursor: pointer;
+}
+
+.task-item-check > label:hover{
+    background-color: rgb(46, 46, 46);
+}
+
+.uncon{
+    color: yellow;
+}
+
+.comp{
+    color: green;
+}
+
+@media (max-width: 768px) {
+    .task-container {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+        height: auto; /* Allow height to adjust automatically */
+    }
+}

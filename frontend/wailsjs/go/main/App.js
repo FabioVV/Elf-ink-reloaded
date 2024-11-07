@@ -6,6 +6,10 @@ export function GetPC() {
   return window['go']['main']['App']['GetPC']();
 }
 
+export function GetTaskItems(arg1) {
+  return window['go']['main']['App']['GetTaskItems'](arg1);
+}
+
 export function GetTasks(arg1) {
   return window['go']['main']['App']['GetTasks'](arg1);
 }

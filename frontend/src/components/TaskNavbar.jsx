@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function TaskNavbar({task}) {
+function TaskNavbar({taskTitle}) {
     const navigate = useNavigate()
 
     return (
@@ -13,11 +13,10 @@ function TaskNavbar({task}) {
             </div>
 
             <div className='task-nav-title'>
-                <span>{task}</span>
+                <span>{taskTitle}</span>
             </div>
 
             <div>
-            
             </div>
         </nav>
     )

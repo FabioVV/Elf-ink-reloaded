@@ -18,7 +18,7 @@ function DraggableItem({id, handleDrag, handleMenu, openTask, task}) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onContextMenu={handleMenu}
-        onClick={() => {openTask(id)}}
+        onClick={() => {openTask(id, task?.Name)}}
 
         className='mural-item' id={id}>
             <div className='mural-item-title'>

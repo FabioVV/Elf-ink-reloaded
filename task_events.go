@@ -9,7 +9,6 @@ import (
 type Task struct {
 	ID           int
 	Name         string
-	Content      string
 	Status       int
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
@@ -27,7 +26,7 @@ type TaskItem struct {
 	UpdatedAt    time.Time
 	CreatedAtStr string
 	UpdatedAtStr string
-	TotalTasks   int
+	TaskID       int
 }
 
 func (a *App) GetTasks(status int) []Task {
@@ -36,6 +35,7 @@ func (a *App) GetTasks(status int) []Task {
 						FROM task AS T
 						WHERE status = ?`, status)
 	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return nil
 	}
 	defer rows.Close()
@@ -44,7 +44,7 @@ func (a *App) GetTasks(status int) []Task {
 	for rows.Next() {
 		var task Task
 
-		if err := rows.Scan(&task.ID, &task.Name, &task.Content, &task.Status, &task.CreatedAt, &task.UpdatedAt, &task.TotalTasks); err != nil {
+		if err := rows.Scan(&task.ID, &task.Name, &task.Status, &task.CreatedAt, &task.UpdatedAt, &task.TotalTasks); err != nil {
 			runtime.LogError(a.ctx, err.Error())
 			return nil
 		}
@@ -53,6 +53,7 @@ func (a *App) GetTasks(status int) []Task {
 	}
 
 	if err = rows.Err(); err != nil {
+		runtime.LogError(a.ctx, err.Error())
 		return nil
 	}
 
@@ -64,8 +65,39 @@ func (a *App) GetTasks(status int) []Task {
 	return tasks
 }
 
-func (a *App) getTaskItems(id string) []TaskItem {
-	return nil
+func (a *App) GetTaskItems(id string) []TaskItem {
+	rows, err := a.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.created_at, TI.updated_at, TI.task_id
+	FROM task_item AS TI
+	WHERE TI.task_id = ?`, id)
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return nil
+	}
+	defer rows.Close()
+
+	var TaskItems []TaskItem
+	for rows.Next() {
+		var taskItem TaskItem
+
+		if err := rows.Scan(&taskItem.ID, &taskItem.Name, &taskItem.Content, &taskItem.Status, &taskItem.CreatedAt, &taskItem.UpdatedAt, &taskItem.TaskID); err != nil {
+			runtime.LogError(a.ctx, err.Error())
+			return nil
+		}
+
+		TaskItems = append(TaskItems, taskItem)
+	}
+
+	if err = rows.Err(); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+		return nil
+	}
+
+	for i, taskItem := range TaskItems {
+		TaskItems[i].CreatedAtStr = taskItem.CreatedAt.Format("02/01/2006 15:04")
+		TaskItems[i].UpdatedAtStr = taskItem.UpdatedAt.Format("02/01/2006 15:04")
+	}
+
+	return TaskItems
 }
 
 func createTask(app *App, name string) {
@@ -86,6 +118,26 @@ func createTask(app *App, name string) {
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 }
 
+func createTaskItem(app *App, taskItem map[string]interface{}) {
+
+	taskID := taskItem["task_id"].(string)
+	name := taskItem["name"].(string)
+
+	stmt, err := app.db.Prepare("INSERT INTO task_item (task_id, name) VALUES (?, ?)")
+	if err != nil {
+		runtime.LogError(app.ctx, "Error creating task item -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(taskID, name)
+	if err != nil {
+		runtime.LogError(app.ctx, "Error creating task item -> "+err.Error())
+		return
+	}
+
+	runtime.EventsEmit(app.ctx, "reload_tasks")
+}
+
 func updateTaskStatus(app *App, task map[string]interface{}) {
 
 	taskID := task["id"].(string)
@@ -100,6 +152,43 @@ func updateTaskStatus(app *App, task map[string]interface{}) {
 	_, err = stmt.Exec(newStatus, taskID)
 	if err != nil {
 		runtime.LogError(app.ctx, "Error updating task -> "+err.Error())
+		return
+	}
+
+	runtime.EventsEmit(app.ctx, "reload_tasks")
+}
+
+func updateTaskItemStatus(app *App, task map[string]interface{}) {
+
+	taskItemID := task["taskItemId"].(float64)
+	newStatus := task["status"].(string)
+
+	stmt, err := app.db.Prepare("UPDATE task_item SET status = ? WHERE id = ?")
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(newStatus, taskItemID)
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	runtime.EventsEmit(app.ctx, "reload_tasks")
+}
+
+func deleteTask(app *App, taskID string) {
+
+	stmt, err := app.db.Prepare("DELETE FROM task WHERE id = ?")
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(taskID)
+	if err != nil {
+		runtime.LogError(app.ctx, "Error deleting task -> "+err.Error())
 		return
 	}
 

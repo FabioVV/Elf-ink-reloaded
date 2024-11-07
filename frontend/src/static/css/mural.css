@@ -61,3 +61,14 @@
 .over-content{
     background-color: rgb(48, 48, 48);
 }
+
+.delete-button{
+    background-color: red;
+    border-color: white;
+    float: right;
+}
+
+.delete-button:hover{
+    background-color: rgb(255, 49, 49) !important;
+    border-color: red !important;
+}

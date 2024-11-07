@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react'
 
-function CustomContextMenu({ x, y, taskID, openTask, visible, onClose }) {
+function CustomContextMenu({ x, y, taskID, taskTitle, openTask, openDeleteTask, visible, onClose }) {
     if (!visible) return null;
 
     const style = {
@@ -18,8 +18,8 @@ function CustomContextMenu({ x, y, taskID, openTask, visible, onClose }) {
     return (
         <div style={style} onScroll={onclose}>
             <ul className='menu-ul'>
-                <li onClick={() => { openTask(taskID); onClose(); }}>Open</li>
-                <li onClick={() => { alert('Action 2'); onClose(); }}>Delete</li>
+                <li onClick={() => { openTask(taskID, taskTitle); onClose() }}>Open</li>
+                <li onClick={() => { openDeleteTask(taskID); onClose() }}>Delete</li>
                 <hr />
                 <li onClick={() => { onClose() }}>Close</li>
             </ul>

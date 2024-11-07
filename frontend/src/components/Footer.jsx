@@ -9,7 +9,6 @@ function Footer() {
         name: ''
     })
 
-
     const openCreateTask = () =>{
         document.getElementById('create-task').showModal()
     }
