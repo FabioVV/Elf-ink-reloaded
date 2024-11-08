@@ -1,7 +1,7 @@
 
 .mural{
     display: grid;
-    grid-template-columns: repeat(4, 320px);
+    grid-template-columns: repeat(4, 1fr);
     grid-gap: 1rem;
 }
 
@@ -29,7 +29,7 @@
     border-radius: 5px;
     border: 1px solid rgb(107, 107, 107);
     cursor: pointer;
-    height: 140px;
+    height: 185px;
 }
 
 .mural-content{
@@ -71,4 +71,21 @@
 .delete-button:hover{
     background-color: rgb(255, 49, 49) !important;
     border-color: red !important;
+}
+
+.time{
+    font-size: 13px;
+}
+
+.task-total{
+    font-size: 13px;
+
+}
+
+.completed{
+    color: green;
+}
+
+.uncompleted{
+    color: yellow;
 }

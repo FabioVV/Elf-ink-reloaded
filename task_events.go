@@ -7,14 +7,18 @@ import (
 )
 
 type Task struct {
-	ID           int
-	Name         string
-	Status       int
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID        int
+	Name      string
+	Status    int
+	CreatedAt time.Time
+	UpdatedAt time.Time
+
 	CreatedAtStr string
 	UpdatedAtStr string
 	TotalTasks   int
+
+	TotalCompletedTasks   int
+	TotalUncompletedTasks int
 }
 
 type TaskItem struct {
@@ -31,7 +35,9 @@ type TaskItem struct {
 
 func (a *App) GetTasks(status int) []Task {
 	rows, err := a.db.Query(`SELECT T.id, T.name, T.status, T.created_at AS created_at, T.updated_at,
-						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id) AS total_tasks
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id) AS total_tasks,
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id AND TI.status = 2) AS total_completed,
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id AND TI.status = 1) AS total_uncompleted
 						FROM task AS T
 						WHERE status = ?`, status)
 	if err != nil {
@@ -44,7 +50,7 @@ func (a *App) GetTasks(status int) []Task {
 	for rows.Next() {
 		var task Task
 
-		if err := rows.Scan(&task.ID, &task.Name, &task.Status, &task.CreatedAt, &task.UpdatedAt, &task.TotalTasks); err != nil {
+		if err := rows.Scan(&task.ID, &task.Name, &task.Status, &task.CreatedAt, &task.UpdatedAt, &task.TotalTasks, &task.TotalCompletedTasks, &task.TotalUncompletedTasks); err != nil {
 			runtime.LogError(a.ctx, err.Error())
 			return nil
 		}

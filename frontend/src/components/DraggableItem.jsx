@@ -30,8 +30,10 @@ function DraggableItem({id, handleDrag, handleMenu, openTask, task}) {
             </div> */}
 
             <div className='mural-item-time'>
-                <span>Tasks: {task?.TotalTasks}</span>
-                <br/>
+                <span className='task-total'><span>Total Tasks</span>: {task?.TotalTasks}</span> <br/>
+                <span className='task-total'><span className='completed'>Tasks completed</span>: {task?.TotalCompletedTasks}</span> <br/>
+                <span className='task-total'><span className='uncompleted'>Tasks uncompleted</span>: {task?.TotalUncompletedTasks}</span> <br/>
+
                 <span className='time'>Created at: {task?.CreatedAtStr}</span>
                 <br />
                 <span className='time'>Updated at: {task?.UpdatedAtStr}</span>
