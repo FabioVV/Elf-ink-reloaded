@@ -11,7 +11,7 @@ function App() {
     return (
       <Routes>
         <Route path='/' Component={Home}/>
-        <Route path='/task/:id' Component={Task}/>
+        <Route path='/task/:taskID' Component={Task}/>
       </Routes>
     )
 }

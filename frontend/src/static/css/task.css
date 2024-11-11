@@ -5,7 +5,7 @@
     align-items: center;
     text-align: center;
     padding: 3px;
-    background-color: gray;
+    border-bottom: 1px solid white;
 }
 
 .task-nav-title{
@@ -85,7 +85,11 @@
 
 @media (max-width: 768px) {
     .task-container {
-        grid-template-columns: 1fr; /* Stack columns on smaller screens */
-        height: auto; /* Allow height to adjust automatically */
+        grid-template-rows: 200px 1fr; /* Stack columns on smaller screens */
+        grid-template-columns: 1fr;
+        overflow-y: hidden;
+    }
+    .task-nav-title > span {
+        margin-right: 3.4rem;
     }
 }

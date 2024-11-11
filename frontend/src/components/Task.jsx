@@ -8,24 +8,23 @@ import { GetAllTasksItems } from '../lib/Task'
 import Dialog from './Dialog'
 
 function Task() {
-    const { id } = useParams()
+    const { taskID } = useParams()
 
     const [taskItems, setTaskItems] = useState([])
     const [taskItemName, setTaskItemName] = useState('')
 
     const setupTaskItems = async () => {
-        let taskItems = await GetAllTasksItems(id)
-        console.log(taskItems)
+        let taskItems = await GetAllTasksItems(taskID)
         setTaskItems(taskItems)
     }
 
     const createTaskItem = (e) => {
-        let task_item = {task_id: id, name: taskItemName}
+        let task_item = {task_id: taskID, name: taskItemName}
         EventsEmit('create_task_item', task_item)
     }
 
     const handleCheckBox = (checked, id) => {
-        let task_item = {taskItemId: id, status: checked ? "2" : "1"}
+        let task_item = {taskItemId: id, taskId: taskID, status: checked ? "2" : "1"}
         EventsEmit('update_task_item', task_item)
     }
 
@@ -43,7 +42,7 @@ function Task() {
     return (
         <>
             <TaskNavbar
-                taskTitle={id}
+                taskTitle={taskID}
             />
             <div className='task-container'>
                 <div className='task-stuff'>
@@ -65,7 +64,10 @@ function Task() {
                 </div>
 
                 <div className='editor'>
-                    
+                    <div id='markdown-load-toolbox'></div>
+                    <input type="hidden" name="content_hidden" id='content_hidden' />
+                    <input hidden type="file" name="markdown-file" id="markdown-file" style={{display:"none"}}/>
+                    <doc-menter></doc-menter>
                 </div>
             </div>
 

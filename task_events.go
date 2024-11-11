@@ -167,6 +167,7 @@ func updateTaskStatus(app *App, task map[string]interface{}) {
 func updateTaskItemStatus(app *App, task map[string]interface{}) {
 
 	taskItemID := task["taskItemId"].(float64)
+	taskID := task["taskId"].(string)
 	newStatus := task["status"].(string)
 
 	stmt, err := app.db.Prepare("UPDATE task_item SET status = ? WHERE id = ?")
@@ -180,6 +181,9 @@ func updateTaskItemStatus(app *App, task map[string]interface{}) {
 		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
 		return
 	}
+
+	stmt, _ = app.db.Prepare("UPDATE task SET updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+	stmt.Exec(taskID)
 
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 }
