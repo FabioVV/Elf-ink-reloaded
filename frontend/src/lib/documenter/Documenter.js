@@ -86,26 +86,37 @@ class Documenter extends HTMLElement {
             this.textHistoryManager.redo()
 
         } else if (event.key === 'Backspace' || event.key === "Delete"){
-            event.preventDefault()
+            event.preventDefault();
 
             let selection = window.getSelection()
-
-            if(!selection.rangeCount){
-                selection.deleteFromDocument()
-
-            } else {        
+        
+            if (!selection.rangeCount) {
+                return // No selection, do nothing
+            }
+        
+            try {
                 const range = selection.getRangeAt(0)
         
+                // Check if the selection is within the contentDiv
                 if (!this.contentDiv.contains(range.commonAncestorContainer)) {
                     return
                 }
         
-                const currentNode = range.startContainer
-                range.setStart(currentNode, range.startOffset - 1);
-
-                range.deleteContents()
+                // If the selection is empty, we can delete the character before the cursor
+                if (range.collapsed) {
+                    const currentNode = range.startContainer
+                    if (range.startOffset > 0) {
+                        range.setStart(currentNode, range.startOffset - 1)
+                        range.deleteContents()
+                    }
+                } else {
+                    // If there is a selection, delete the selected content
+                    range.deleteContents()
+                }
+            } catch (e) {
+                console.log(e)
             }
-
+        
             this.textHistoryManager.saveState()
         }
 
@@ -113,31 +124,35 @@ class Documenter extends HTMLElement {
     }
 
     handleEnter(event) {
-        if (event.key == 'Enter') {
+        if (event.key === 'Enter') {
             event.preventDefault()
-
+    
             const selection = window.getSelection()
+            if (selection.rangeCount === 0) return // No selection, do nothing
+    
             const range = selection.getRangeAt(0)
             const currentNode = range.startContainer
-            const textBeforeCaret = currentNode.textContent.substring(0, range.startOffset)
+            const textBeforeCaret = currentNode.textContent.substring(0, range.startOffset);
             const linesBefore = textBeforeCaret.split('\n')
             const currentLine = linesBefore[linesBefore.length - 1]
-        
-            let newLine = '\n'
-
+    
+            let newLine = '\n';
+    
             if (currentLine.match(/^\d+\. /)) {
-              newLine = `\n${parseInt(currentLine, 10) + 1}. `
-
+                newLine = `\n${parseInt(currentLine, 10) + 1}. `
             } else if (currentLine.match(/^- /)) {
-              newLine = `\n- `
-
-            } 
-
-            range.insertNode(document.createTextNode(newLine))
-            range.collapse(false)
-            selection.removeAllRanges();
+                newLine = `\n- `
+            }
+    
+            // Insert the new line
+            const newTextNode = document.createTextNode(newLine)
+            range.insertNode(newTextNode)
+            range.setStartAfter(newTextNode); // Move the range to after the new line
+            range.collapse(true) // Collapse the range to the end of the new line
+    
+            // Clear the selection and set the new range
+            selection.removeAllRanges()
             selection.addRange(range)
-
         }
     }
 
