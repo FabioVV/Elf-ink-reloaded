@@ -10,6 +10,10 @@ export function GetTaskItems(arg1) {
   return window['go']['main']['App']['GetTaskItems'](arg1);
 }
 
+export function GetTaskSingle(arg1) {
+  return window['go']['main']['App']['GetTaskSingle'](arg1);
+}
+
 export function GetTasks(arg1) {
   return window['go']['main']['App']['GetTasks'](arg1);
 }

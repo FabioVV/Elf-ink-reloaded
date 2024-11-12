@@ -4,7 +4,7 @@ import { EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
 import TaskNavbar from './TaskNavbar'
 import TaskItemCheck from './TaskItemCheck'
-import { GetAllTasksItems } from '../lib/Task'
+import { GetAllTasksItems, GetTask } from '../lib/Task'
 import Dialog from './Dialog'
 
 function Task() {
@@ -12,6 +12,7 @@ function Task() {
 
     const [taskItems, setTaskItems] = useState([])
     const [taskItemName, setTaskItemName] = useState('')
+    const [task, setTask] = useState({})
 
     const setupTaskItems = async () => {
         let taskItems = await GetAllTasksItems(taskID)
@@ -23,6 +24,11 @@ function Task() {
         EventsEmit('create_task_item', task_item)
     }
 
+    const getTask = async () => {
+        let task = await GetTask(taskID)
+        setTask(task)
+    }
+
     const handleCheckBox = (checked, id) => {
         let task_item = {taskItemId: id, taskId: taskID, status: checked ? "2" : "1"}
         EventsEmit('update_task_item', task_item)
@@ -32,8 +38,14 @@ function Task() {
         document.getElementById('create-item').showModal()
     }
     
+    const setEditing = (taskItemID, Editing) =>{
+        let task_item = {id: taskItemID, editing: Editing}
+        EventsEmit('update_task_item_editing', task_item)
+    }
+
     useEffect(()=>{
         setupTaskItems()
+        getTask()
         document.body.style.overflow = "hidden"
     }, [])
 
@@ -42,7 +54,7 @@ function Task() {
     return (
         <>
             <TaskNavbar
-                taskTitle={taskID}
+                taskTitle={task?.Name}
             />
             <div className='task-container'>
                 <div className='task-stuff'>
@@ -57,6 +69,7 @@ function Task() {
                                 id={taskItem.ID}
                                 taskItem={taskItem}
                                 handleCheckBox={handleCheckBox}
+                                setEditing={setEditing}
                             >
                             </TaskItemCheck>
                         ))}

@@ -9,7 +9,7 @@ import (
 type Task struct {
 	ID        int
 	Name      string
-	Status    int
+	Status    int8
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
@@ -25,7 +25,8 @@ type TaskItem struct {
 	ID           int
 	Name         string
 	Content      string
-	Status       int
+	Status       int8
+	Editing      int8
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	CreatedAtStr string
@@ -72,7 +73,7 @@ func (a *App) GetTasks(status int) []Task {
 }
 
 func (a *App) GetTaskItems(id string) []TaskItem {
-	rows, err := a.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.created_at, TI.updated_at, TI.task_id
+	rows, err := a.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.editing, TI.created_at, TI.updated_at, TI.task_id
 	FROM task_item AS TI
 	WHERE TI.task_id = ?`, id)
 	if err != nil {
@@ -85,7 +86,7 @@ func (a *App) GetTaskItems(id string) []TaskItem {
 	for rows.Next() {
 		var taskItem TaskItem
 
-		if err := rows.Scan(&taskItem.ID, &taskItem.Name, &taskItem.Content, &taskItem.Status, &taskItem.CreatedAt, &taskItem.UpdatedAt, &taskItem.TaskID); err != nil {
+		if err := rows.Scan(&taskItem.ID, &taskItem.Name, &taskItem.Content, &taskItem.Status, &taskItem.Editing, &taskItem.CreatedAt, &taskItem.UpdatedAt, &taskItem.TaskID); err != nil {
 			runtime.LogError(a.ctx, err.Error())
 			return nil
 		}
@@ -104,6 +105,37 @@ func (a *App) GetTaskItems(id string) []TaskItem {
 	}
 
 	return TaskItems
+}
+
+func (a *App) GetTaskSingle(id string) Task {
+	rows, err := a.db.Query(`SELECT T.id, T.name, T.status, T.created_at AS created_at, T.updated_at,
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id) AS total_tasks,
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id AND TI.status = 2) AS total_completed,
+						(SELECT COUNT(*) FROM task_item AS TI WHERE T.id = TI.task_id AND TI.status = 1) AS total_uncompleted
+						FROM task AS T
+						WHERE T.id = ?`, id)
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
+	defer rows.Close()
+
+	var task Task
+	for rows.Next() {
+
+		if err := rows.Scan(&task.ID, &task.Name, &task.Status, &task.CreatedAt, &task.UpdatedAt, &task.TotalTasks, &task.TotalCompletedTasks, &task.TotalUncompletedTasks); err != nil {
+			runtime.LogError(a.ctx, err.Error())
+		}
+
+	}
+
+	if err = rows.Err(); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
+
+	task.CreatedAtStr = task.CreatedAt.Format("02/01/2006 15:04")
+	task.UpdatedAtStr = task.UpdatedAt.Format("02/01/2006 15:04")
+
+	return task
 }
 
 func createTask(app *App, name string) {
@@ -184,6 +216,38 @@ func updateTaskItemStatus(app *App, task map[string]interface{}) {
 
 	stmt, _ = app.db.Prepare("UPDATE task SET updated_at = CURRENT_TIMESTAMP WHERE id = ?")
 	stmt.Exec(taskID)
+
+	runtime.EventsEmit(app.ctx, "reload_tasks")
+}
+
+func updateTaskItemEditing(app *App, taskItem map[string]interface{}) {
+
+	taskItemID := taskItem["id"].(float64)
+	editing := taskItem["editing"].(string)
+
+	stmt, err := app.db.Prepare("UPDATE task_item SET editing = 0 WHERE id <> ?")
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(taskItemID)
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	stmt, err = app.db.Prepare("UPDATE task_item SET editing = ? WHERE id = ?")
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(editing, taskItemID)
+	if err != nil {
+		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
 
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 }

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
-function TaskItemCheck({id, taskItem, handleCheckBox}) {
+function TaskItemCheck({id, taskItem, handleCheckBox, setEditing}) {
 
     const [status, setStatus] = useState('')
 
     return (
         <div title={taskItem?.Name} className={`task-item-check`}>
-            <label>
+            <label className={`${taskItem.Editing == 1 ? 'task-item-check-active': ''}`} onClick={()=>{setEditing(id, taskItem.Editing == 1 ? "0": "1")}}>
                 {taskItem?.Name}
                 <br></br> 
                 {taskItem.Status == 1 ? <span className='uncon'>Uncompleted...</span> : <span className='comp'>Completed!</span>}

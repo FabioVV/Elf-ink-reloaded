@@ -55,6 +55,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
 }
 
 .task-item-check > label{
@@ -73,6 +74,11 @@
 
 .task-item-check > label:hover{
     background-color: rgb(46, 46, 46);
+}
+
+.task-item-check-active{
+    background-color: rgb(46, 46, 46);
+
 }
 
 .uncon{

@@ -6,4 +6,6 @@ export function GetPC():Promise<any>;
 
 export function GetTaskItems(arg1:string):Promise<Array<main.TaskItem>>;
 
+export function GetTaskSingle(arg1:string):Promise<main.Task>;
+
 export function GetTasks(arg1:number):Promise<Array<main.Task>>;
