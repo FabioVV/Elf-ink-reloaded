@@ -7,7 +7,9 @@
     text-align: start;
     white-space: break-spaces;
     overflow-y: auto;
-
+    margin-left: 2.5rem;
+    margin-top: 5.5rem;
+    
     &:focus,
     &:active {
         border: none;
@@ -102,6 +104,8 @@ code {
 #markdown-load-toolbox{
     display: flex;
     justify-content: center;
+    position: fixed;
+    left: 50%;
 }
 
 .editor{

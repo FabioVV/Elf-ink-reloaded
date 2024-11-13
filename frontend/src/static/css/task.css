@@ -12,6 +12,7 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-size: 1.3em;
 }
 
 .task-nav-return > button {
@@ -30,7 +31,7 @@
 }
 
 .task-container > div {
-    padding: 10px;
+    padding: 16px;
     box-sizing: border-box; /* Ensures padding is included in width */
 }
 
@@ -77,8 +78,9 @@
 }
 
 .task-item-check-active{
-    background-color: rgb(46, 46, 46);
-
+    /* background-color: rgb(46, 46, 46); */
+    border: 0.03em solid #ff0063;
+    box-shadow: 0 4px 8px rgba(255, 0, 99, 0.7);
 }
 
 .uncon{
@@ -87,6 +89,10 @@
 
 .comp{
     color: green;
+}
+
+.task-list{
+    margin-top: 1rem;
 }
 
 @media (max-width: 885px) {
@@ -100,5 +106,28 @@
     }
     .editor{
         margin-right: 0px !important;
+    }
+    #markdown-load-toolbox {
+        left: 18% !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    #markdown-load-toolbox {
+        left: 41% !important;
+    }
+
+}
+
+@media (max-width: 1000px) {
+    #markdown-load-toolbox {
+        left: 36% !important;
+    }
+
+}
+
+@media (max-width: 920px) {
+    #markdown-load-toolbox {
+        left: 34% !important;
     }
 }
