@@ -377,9 +377,51 @@ function createButton(className, title, action, iconClass) {
     return button;
 }
 
+function createEditorModeToggle() {
+    const changeEditorModeDiv = document.createElement('div');
+    changeEditorModeDiv.className = 'change-editor-mode';
+
+    const eyeSpan = document.createElement('span');
+    const eyeIcon = document.createElement('i');
+    eyeIcon.className = 'fa-solid fa-eye';
+    eyeSpan.appendChild(eyeIcon);
+
+    const toggleSpan = document.createElement('span');
+
+    const toggleLabel = document.createElement('label');
+    toggleLabel.className = 'switch';
+    toggleLabel.htmlFor = 'editor-mode-toggle';
+
+    const toggleInput = document.createElement('input');
+    toggleInput.type = 'checkbox';
+    toggleInput.id = 'editor-mode-toggle';
+
+    const sliderSpan = document.createElement('span');
+    sliderSpan.className = 'slider round';
+
+    toggleLabel.appendChild(toggleInput);
+    toggleLabel.appendChild(sliderSpan);
+    toggleSpan.appendChild(toggleLabel);
+
+    const penNibSpan = document.createElement('span');
+    const penNibIcon = document.createElement('i');
+    penNibIcon.className = 'fa-solid fa-pen-nib';
+    penNibSpan.appendChild(penNibIcon);
+
+    changeEditorModeDiv.appendChild(eyeSpan);
+    changeEditorModeDiv.appendChild(toggleSpan);
+    changeEditorModeDiv.appendChild(penNibSpan);
+
+    return changeEditorModeDiv;
+}
+
 function insertToolbox(containerId) {
-    const toolbox = document.createElement('div');
-    toolbox.className = 'toolbox-edit-markdown';
+    const toolbox = document.createElement('div')
+    const toolboxChangeModes = document.createElement('div')
+    const markdownToggle = document.getElementById('markdown-change')
+
+    toolbox.className = 'toolbox-edit-markdown'
+    toolboxChangeModes.className = 'toolbox-change-mode-edit-markdown'
 
     const buttons = [
         { className: 'header', title: 'Insert header', action: 'insertHeader', iconClass: 'fa-solid fa-heading' },
@@ -390,18 +432,24 @@ function insertToolbox(containerId) {
         { className: 'code', title: 'Insert code block', action: 'insertCode', iconClass: 'fa-solid fa-code' },
         { className: 'link', title: 'Insert link', action: 'insertLink', iconClass: 'fa-solid fa-link' },
         { className: 'image', title: 'Insert image', action: 'insertImage', iconClass: 'fa-solid fa-images' }
-    ];
+    ]
 
     buttons.forEach(buttonInfo => {
-        const button = createButton(buttonInfo.className, buttonInfo.title, buttonInfo.action, buttonInfo.iconClass);
-        toolbox.appendChild(button);
-    });
+        const button = createButton(buttonInfo.className, buttonInfo.title, buttonInfo.action, buttonInfo.iconClass)
+        toolbox.appendChild(button)
+    })
 
-    const container = document.getElementById(containerId);
+    const container = document.getElementById(containerId)
     if (container) {
-        container.appendChild(toolbox);
+        toolboxChangeModes.appendChild(createEditorModeToggle())
+        // container.appendChild(toolboxChangeModes)
+        container.appendChild(toolbox)
+
+        if(markdownToggle){
+            markdownToggle.appendChild(toolboxChangeModes)
+        }
     } else {
-        console.error(`Container with id '${containerId}' not found.`);
+        console.error(`Container with id '${containerId}' not found.`)
     }
 }
 

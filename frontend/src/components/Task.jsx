@@ -13,20 +13,23 @@ function Task() {
     const [taskItems, setTaskItems] = useState([])
     const [taskItemName, setTaskItemName] = useState('')
     const [task, setTask] = useState({})
+    const [taskItemCurrentlyEditing, setTaskItemCurrentlyEditing] = useState({})
+    const [editorStatus, setEditorStatus] = useState(false)
+
 
     const setupTaskItems = async () => {
         let taskItems = await GetAllTasksItems(taskID)
         setTaskItems(taskItems)
     }
 
-    const createTaskItem = (e) => {
-        let task_item = {task_id: taskID, name: taskItemName}
-        EventsEmit('create_task_item', task_item)
-    }
-
     const getTask = async () => {
         let task = await GetTask(taskID)
         setTask(task)
+    }
+
+    const createTaskItem = (e) => {
+        let task_item = {task_id: taskID, name: taskItemName}
+        EventsEmit('create_task_item', task_item)
     }
 
     const handleCheckBox = (checked, id) => {
@@ -37,10 +40,14 @@ function Task() {
     const openCreateTaskItem = () =>{
         document.getElementById('create-item').showModal()
     }
-    
-    const setEditing = (taskItemID, Editing) =>{
-        let task_item = {id: taskItemID, editing: Editing}
-        EventsEmit('update_task_item_editing', task_item)
+
+    const setActive = (taskItemID, active) =>{
+        let task_item = {id: taskItemID, active: active}
+        EventsEmit('update_task_item_active', task_item)
+    }
+
+    const activeTaskItem = (taskItem) =>{
+        setTaskItemCurrentlyEditing(taskItem)
     }
 
     useEffect(()=>{
@@ -49,7 +56,34 @@ function Task() {
         document.body.style.overflow = "hidden"
     }, [])
 
+    useEffect(()=>{
+        const showPageElement = document.getElementById('show_page')
+        if(showPageElement){
+            showPageElement.innerHTML = "aaa"
+        }
+        
+    }, [taskItemCurrentlyEditing])
+
+    useEffect(() => {
+        const checkbox = document.getElementById('editor-mode-toggle')
+
+        if(checkbox.checked){
+            setEditorStatus(true)
+        } 
+    
+        const handleCheckboxChange = () => {
+            setEditorStatus(checkbox.checked)
+        }
+    
+        checkbox.addEventListener('change', handleCheckboxChange);
+    
+        return () => {
+          checkbox.removeEventListener('change', handleCheckboxChange);
+        }
+      }, [])
+
     EventsOn("reload_tasks", setupTaskItems)
+    EventsOn("set_ative_task_item", activeTaskItem)
 
     return (
         <>
@@ -69,7 +103,7 @@ function Task() {
                                 id={taskItem.ID}
                                 taskItem={taskItem}
                                 handleCheckBox={handleCheckBox}
-                                setEditing={setEditing}
+                                setActive={setActive}
                             >
                             </TaskItemCheck>
                         ))}
@@ -77,11 +111,23 @@ function Task() {
                 </div>
 
                 <div className='editor'>
-                    <div id='markdown-load-toolbox'></div>
-                    <input type="hidden" name="content_hidden" id='content_hidden' />
-                    <input hidden type="file" name="markdown-file" id="markdown-file" style={{display:"none"}}/>
-                    <doc-menter></doc-menter>
+                    <div id='markdown-change'></div>
+
+                    <div className='editor-main' style={{display: editorStatus ? "flex" : "none", flexDirection: editorStatus ? "column" : ""}}>
+                        <div id='markdown-load-toolbox'></div>
+                        <form encType="multipart/form-data" acceptCharset="UTF-8">
+                            <input type="hidden" name="content_hidden" id='content_hidden' />
+                            <input hidden type="file" name="markdown-file" id="markdown-file" style={{display:"none"}}/>
+                            <doc-menter></doc-menter>
+                        </form>
+                    </div>
+
+                    <div className='showPage' id='show_page' style={{display: !editorStatus ? "block" : "none"}}>
+                    </div>
+
                 </div>
+
+
             </div>
 
             <Dialog title={`Create item`} id={`create-item`}>

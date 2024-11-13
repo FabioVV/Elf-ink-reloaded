@@ -26,7 +26,7 @@ type TaskItem struct {
 	Name         string
 	Content      string
 	Status       int8
-	Editing      int8
+	Active       int8
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	CreatedAtStr string
@@ -73,7 +73,7 @@ func (a *App) GetTasks(status int) []Task {
 }
 
 func (a *App) GetTaskItems(id string) []TaskItem {
-	rows, err := a.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.editing, TI.created_at, TI.updated_at, TI.task_id
+	rows, err := a.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.active, TI.created_at, TI.updated_at, TI.task_id
 	FROM task_item AS TI
 	WHERE TI.task_id = ?`, id)
 	if err != nil {
@@ -86,7 +86,7 @@ func (a *App) GetTaskItems(id string) []TaskItem {
 	for rows.Next() {
 		var taskItem TaskItem
 
-		if err := rows.Scan(&taskItem.ID, &taskItem.Name, &taskItem.Content, &taskItem.Status, &taskItem.Editing, &taskItem.CreatedAt, &taskItem.UpdatedAt, &taskItem.TaskID); err != nil {
+		if err := rows.Scan(&taskItem.ID, &taskItem.Name, &taskItem.Content, &taskItem.Status, &taskItem.Active, &taskItem.CreatedAt, &taskItem.UpdatedAt, &taskItem.TaskID); err != nil {
 			runtime.LogError(a.ctx, err.Error())
 			return nil
 		}
@@ -220,12 +220,12 @@ func updateTaskItemStatus(app *App, task map[string]interface{}) {
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 }
 
-func updateTaskItemEditing(app *App, taskItem map[string]interface{}) {
+func updateTaskItemActive(app *App, taskItem map[string]interface{}) {
 
 	taskItemID := taskItem["id"].(float64)
-	editing := taskItem["editing"].(string)
+	active := taskItem["active"].(string)
 
-	stmt, err := app.db.Prepare("UPDATE task_item SET editing = 0 WHERE id <> ?")
+	stmt, err := app.db.Prepare("UPDATE task_item SET active = 0 WHERE id <> ?")
 	if err != nil {
 		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
 		return
@@ -237,19 +237,43 @@ func updateTaskItemEditing(app *App, taskItem map[string]interface{}) {
 		return
 	}
 
-	stmt, err = app.db.Prepare("UPDATE task_item SET editing = ? WHERE id = ?")
+	stmt, err = app.db.Prepare("UPDATE task_item SET active = ? WHERE id = ?")
 	if err != nil {
 		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
 		return
 	}
 
-	_, err = stmt.Exec(editing, taskItemID)
+	_, err = stmt.Exec(active, taskItemID)
 	if err != nil {
 		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
 		return
 	}
+
+	rows, err := app.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.active, TI.created_at, TI.updated_at, TI.task_id
+	FROM task_item AS TI
+	WHERE TI.task_id = ?`, taskItemID)
+	if err != nil {
+		runtime.LogError(app.ctx, err.Error())
+	}
+	defer rows.Close()
+
+	var _taskItem TaskItem
+	for rows.Next() {
+		if err := rows.Scan(&_taskItem.ID, &_taskItem.Name, &_taskItem.Content, &_taskItem.Status, &_taskItem.Active, &_taskItem.CreatedAt, &_taskItem.UpdatedAt, &_taskItem.TaskID); err != nil {
+			runtime.LogError(app.ctx, err.Error())
+		}
+
+	}
+
+	if err = rows.Err(); err != nil {
+		runtime.LogError(app.ctx, err.Error())
+	}
+
+	_taskItem.CreatedAtStr = _taskItem.CreatedAt.Format("02/01/2006 15:04")
+	_taskItem.UpdatedAtStr = _taskItem.UpdatedAt.Format("02/01/2006 15:04")
 
 	runtime.EventsEmit(app.ctx, "reload_tasks")
+	runtime.EventsEmit(app.ctx, "set_ative_task_item", _taskItem)
 }
 
 func deleteTask(app *App, taskID string) {

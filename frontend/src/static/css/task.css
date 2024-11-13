@@ -95,6 +95,26 @@
     margin-top: 1rem;
 }
 
+
+/* @media (max-width: 1200px) {
+    #markdown-load-toolbox {
+        left: 40% !important;
+    }
+
+}
+*/
+@media (max-width: 1090px) {
+    #markdown-load-toolbox {
+        left: 38% !important;
+    }
+}
+
+@media (max-width: 940px) {
+    #markdown-load-toolbox {
+        left: 34% !important;
+    }
+}
+
 @media (max-width: 885px) {
     .task-container {
         grid-template-rows: 200px 1fr; /* Stack columns on smaller screens */
@@ -107,27 +127,18 @@
     .editor{
         margin-right: 0px !important;
     }
-    #markdown-load-toolbox {
-        left: 18% !important;
+    .showPage{
+        margin-right: 0px !important;
     }
-}
-
-@media (max-width: 1200px) {
     #markdown-load-toolbox {
-        left: 41% !important;
+        left: auto !important;
+        position: relative !important;
+        margin-top: 6rem;
     }
-
-}
-
-@media (max-width: 1000px) {
-    #markdown-load-toolbox {
-        left: 36% !important;
+    .doc-menter-content{
+        margin-top: 0 !important;
     }
-
-}
-
-@media (max-width: 920px) {
-    #markdown-load-toolbox {
-        left: 34% !important;
+    .editor-main{
+        margin-top: -80px;
     }
 }
