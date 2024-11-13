@@ -4,7 +4,7 @@ import { EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
 import TaskNavbar from './TaskNavbar'
 import TaskItemCheck from './TaskItemCheck'
-import { GetAllTasksItems, GetTask } from '../lib/Task'
+import { GetAllTasksItems, GetTask, getTaskItemActive } from '../lib/Task'
 import Dialog from './Dialog'
 
 function Task() {
@@ -15,6 +15,7 @@ function Task() {
     const [task, setTask] = useState({})
     const [taskItemCurrentlyEditing, setTaskItemCurrentlyEditing] = useState({})
     const [editorStatus, setEditorStatus] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
 
 
     const setupTaskItems = async () => {
@@ -25,6 +26,11 @@ function Task() {
     const getTask = async () => {
         let task = await GetTask(taskID)
         setTask(task)
+    }
+
+    const getTaskActiveItem = async () => {
+        let task = await getTaskItemActive(taskID)
+        setTaskItemCurrentlyEditing(task)
     }
 
     const createTaskItem = (e) => {
@@ -50,18 +56,39 @@ function Task() {
         setTaskItemCurrentlyEditing(taskItem)
     }
 
+    const saveContent = () => {
+        const content = document.getElementById('content_hidden')
+        
+        if(content){
+            let task_item = {task_id: taskID, content: content.value}
+            EventsEmit('update_task_item_content', task_item)
+        }
+
+        setIsSaving(false)
+    }
+
     useEffect(()=>{
         setupTaskItems()
         getTask()
+        getTaskActiveItem()
         document.body.style.overflow = "hidden"
     }, [])
 
     useEffect(()=>{
         const showPageElement = document.getElementById('show_page')
-        if(showPageElement){
-            showPageElement.innerHTML = "aaa"
+        const docMenterElement = document.querySelector('.doc-menter-content')
+        const contentHidden = document.getElementById('content_hidden')
+
+        if(showPageElement && docMenterElement && taskItemCurrentlyEditing?.Content){
+            showPageElement.innerHTML = taskItemCurrentlyEditing?.ContentMarked
+            docMenterElement.innerHTML = taskItemCurrentlyEditing?.Content
+            contentHidden.value = taskItemCurrentlyEditing?.Content
+        } else {
+            showPageElement.innerHTML = ""
+            docMenterElement.innerHTML = ""
+            contentHidden.value = ""
         }
-        
+
     }, [taskItemCurrentlyEditing])
 
     useEffect(() => {
@@ -75,12 +102,35 @@ function Task() {
             setEditorStatus(checkbox.checked)
         }
     
-        checkbox.addEventListener('change', handleCheckboxChange);
-    
+        checkbox.addEventListener('change', handleCheckboxChange)
+
         return () => {
           checkbox.removeEventListener('change', handleCheckboxChange);
         }
-      }, [])
+    }, [])
+
+    useEffect(() => {
+        const docMenterElement = document.querySelector('.doc-menter-content')
+
+        let saveTimeout;
+
+        const handleEditorContent = () => {
+          clearTimeout(saveTimeout)
+
+          saveTimeout = setTimeout(() => {
+            setIsSaving(true)
+            saveContent()
+          }, 3000)
+          
+        }
+
+        docMenterElement.addEventListener('input', handleEditorContent)
+
+        return () => {
+            clearTimeout(saveTimeout)
+            docMenterElement.removeEventListener('input', handleEditorContent)
+        }
+    }, [])
 
     EventsOn("reload_tasks", setupTaskItems)
     EventsOn("set_ative_task_item", activeTaskItem)
@@ -116,7 +166,7 @@ function Task() {
                     <div className='editor-main' style={{display: editorStatus ? "flex" : "none", flexDirection: editorStatus ? "column" : ""}}>
                         <div id='markdown-load-toolbox'></div>
                         <form encType="multipart/form-data" acceptCharset="UTF-8">
-                            <input type="hidden" name="content_hidden" id='content_hidden' />
+                            <input type="hidden" name="content_hidden" id='content_hidden'/>
                             <input hidden type="file" name="markdown-file" id="markdown-file" style={{display:"none"}}/>
                             <doc-menter></doc-menter>
                         </form>
@@ -126,7 +176,6 @@ function Task() {
                     </div>
 
                 </div>
-
 
             </div>
 

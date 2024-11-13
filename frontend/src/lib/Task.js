@@ -1,4 +1,4 @@
-import {GetTasks, GetTaskItems, GetTaskSingle} from "/wailsjs/go/main/App"
+import {GetTasks, GetTaskItems, GetTaskSingle, GetTaskActiveItemSingle} from "/wailsjs/go/main/App"
 
 
 export async function GetAllTasks(status){
@@ -11,4 +11,8 @@ export async function GetAllTasksItems(taskID){
 
 export async function GetTask(taskID){
     return await GetTaskSingle(taskID)
+}
+
+export async function getTaskItemActive(taskID) {
+    return await GetTaskActiveItemSingle(taskID)
 }

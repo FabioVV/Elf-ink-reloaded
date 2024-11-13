@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function GetPC():Promise<any>;
 
+export function GetTaskActiveItemSingle(arg1:string):Promise<main.TaskItem>;
+
 export function GetTaskItems(arg1:string):Promise<Array<main.TaskItem>>;
 
 export function GetTaskSingle(arg1:string):Promise<main.Task>;

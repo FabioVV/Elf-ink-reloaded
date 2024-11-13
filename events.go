@@ -21,4 +21,8 @@ func setupListeners(app *App) {
 	runtime.EventsOn(app.ctx, "update_task_item_active", func(data ...interface{}) {
 		updateTaskItemActive(app, data[0].(map[string]interface{}))
 	})
+	runtime.EventsOn(app.ctx, "update_task_item_content", func(data ...interface{}) {
+		updateTaskItemContent(app, data[0].(map[string]interface{}))
+	})
+
 }

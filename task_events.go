@@ -22,16 +22,19 @@ type Task struct {
 }
 
 type TaskItem struct {
-	ID           int
-	Name         string
-	Content      string
-	Status       int8
-	Active       int8
+	ID            int
+	Name          string
+	Content       string
+	ContentMarked string
+	Status        int8
+	Active        int8
+
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	CreatedAtStr string
 	UpdatedAtStr string
-	TaskID       int
+
+	TaskID int
 }
 
 func (a *App) GetTasks(status int) []Task {
@@ -100,6 +103,12 @@ func (a *App) GetTaskItems(id string) []TaskItem {
 	}
 
 	for i, taskItem := range TaskItems {
+		marked, err := markdownConverter(TaskItems[i].Content)
+		if err != nil {
+			runtime.LogError(a.ctx, err.Error())
+		}
+
+		TaskItems[i].ContentMarked = marked
 		TaskItems[i].CreatedAtStr = taskItem.CreatedAt.Format("02/01/2006 15:04")
 		TaskItems[i].UpdatedAtStr = taskItem.UpdatedAt.Format("02/01/2006 15:04")
 	}
@@ -251,7 +260,7 @@ func updateTaskItemActive(app *App, taskItem map[string]interface{}) {
 
 	rows, err := app.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.active, TI.created_at, TI.updated_at, TI.task_id
 	FROM task_item AS TI
-	WHERE TI.task_id = ?`, taskItemID)
+	WHERE TI.ID = ?`, taskItemID)
 	if err != nil {
 		runtime.LogError(app.ctx, err.Error())
 	}
@@ -269,11 +278,71 @@ func updateTaskItemActive(app *App, taskItem map[string]interface{}) {
 		runtime.LogError(app.ctx, err.Error())
 	}
 
+	marked, err := markdownConverter(_taskItem.Content)
+	if err != nil {
+		runtime.LogError(app.ctx, err.Error())
+	}
+
+	_taskItem.ContentMarked = marked
 	_taskItem.CreatedAtStr = _taskItem.CreatedAt.Format("02/01/2006 15:04")
 	_taskItem.UpdatedAtStr = _taskItem.UpdatedAt.Format("02/01/2006 15:04")
 
 	runtime.EventsEmit(app.ctx, "reload_tasks")
 	runtime.EventsEmit(app.ctx, "set_ative_task_item", _taskItem)
+}
+
+func updateTaskItemContent(a *App, taskItem map[string]interface{}) {
+	taskItemID := taskItem["task_id"].(string)
+	content := taskItem["content"].(string)
+
+	stmt, err := a.db.Prepare("UPDATE task_item SET content = ? WHERE id = ?")
+	if err != nil {
+		runtime.LogError(a.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	_, err = stmt.Exec(content, taskItemID)
+	if err != nil {
+		runtime.LogError(a.ctx, "Error updating task item -> "+err.Error())
+		return
+	}
+
+	runtime.EventsEmit(a.ctx, "reload_tasks")
+
+}
+
+func (a *App) GetTaskActiveItemSingle(id string) TaskItem {
+
+	rows, err := a.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.active, TI.created_at, TI.updated_at, TI.task_id
+	FROM task_item AS TI
+	WHERE TI.task_id = ?`, id)
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
+	defer rows.Close()
+
+	var _taskItem TaskItem
+	for rows.Next() {
+		if err := rows.Scan(&_taskItem.ID, &_taskItem.Name, &_taskItem.Content, &_taskItem.Status, &_taskItem.Active, &_taskItem.CreatedAt, &_taskItem.UpdatedAt, &_taskItem.TaskID); err != nil {
+			runtime.LogError(a.ctx, err.Error())
+		}
+
+	}
+
+	if err = rows.Err(); err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
+
+	marked, err := markdownConverter(_taskItem.Content)
+	if err != nil {
+		runtime.LogError(a.ctx, err.Error())
+	}
+
+	_taskItem.ContentMarked = marked
+	_taskItem.CreatedAtStr = _taskItem.CreatedAt.Format("02/01/2006 15:04")
+	_taskItem.UpdatedAtStr = _taskItem.UpdatedAt.Format("02/01/2006 15:04")
+
+	return _taskItem
 }
 
 func deleteTask(app *App, taskID string) {
