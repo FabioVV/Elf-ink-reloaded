@@ -234,6 +234,24 @@ func updateTaskItemActive(app *App, taskItem map[string]interface{}) {
 	taskItemID := taskItem["id"].(float64)
 	active := taskItem["active"].(string)
 
+	rows, err := app.db.Query(`SELECT TI.active FROM task_item AS TI WHERE TI.id = ?`, taskItemID)
+	if err != nil {
+		runtime.LogError(app.ctx, err.Error())
+	}
+
+	if rows.Next() {
+		var active int8
+		if err := rows.Scan(&active); err != nil {
+			runtime.LogError(app.ctx, err.Error())
+		}
+		if active == 1 {
+			rows.Close()
+			return
+		}
+	}
+
+	rows.Close()
+
 	stmt, err := app.db.Prepare("UPDATE task_item SET active = 0 WHERE id <> ?")
 	if err != nil {
 		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
@@ -254,13 +272,12 @@ func updateTaskItemActive(app *App, taskItem map[string]interface{}) {
 
 	_, err = stmt.Exec(active, taskItemID)
 	if err != nil {
-		runtime.LogError(app.ctx, "Error updating task item -> "+err.Error())
+		runtime.LogError(app.ctx, "Error updating task itemaqio 4 -> "+err.Error())
 		return
 	}
 
-	rows, err := app.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.active, TI.created_at, TI.updated_at, TI.task_id
-	FROM task_item AS TI
-	WHERE TI.ID = ?`, taskItemID)
+	rows, err = app.db.Query(`SELECT TI.id, TI.name, TI.content, TI.status, TI.active, TI.created_at, TI.updated_at, TI.task_id
+	FROM task_item AS TI WHERE TI.ID = ?`, taskItemID)
 	if err != nil {
 		runtime.LogError(app.ctx, err.Error())
 	}
