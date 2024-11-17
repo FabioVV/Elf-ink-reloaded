@@ -11,25 +11,39 @@
     padding: 10px;
 }
 
+.mural-option:first-child{
+    border-left: none !important;
+}
+
 .mural-title{
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
+.mural-title > h4{
+    border: 1px solid white;
+    width: fit-content;
+    margin: 1.25rem auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 10px;
+}
+
 .mural-item{
     /* box-shadow: rgba(240, 46, 170, 0.4) -5px 5px, rgba(240, 46, 170, 0.3) -10px 10px, rgba(240, 46, 170, 0.2) -15px 15px, rgba(240, 46, 170, 0.1) -20px 20px, rgba(240, 46, 170, 0.05) -25px 25px; */
     max-width: 85%;
-    width: 255px;
+    width: 275px;
     margin: 0 auto;
-    padding: 8px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: normal;
     border-radius: 5px;
-    border: 1px solid rgb(107, 107, 107);
     cursor: pointer;
-    height: 185px;
+    height: 195px;
+    gap: 10px;
+    background-color: #2b2b2b;
 }
 
 .mural-content{
@@ -42,10 +56,11 @@
 
 .mural-item-title{
     overflow: hidden;
-    text-align: center;
+    text-align: left;
     white-space: nowrap;
     text-overflow: ellipsis;
-    border-bottom: 1px solid white;
+    font-weight: 900;
+    /* border-bottom: 1px solid white; */
 }
 
 .mural-item-preview{
@@ -55,7 +70,11 @@
 }
 
 .mural-item-time{
-    text-align: right;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .over-content{
@@ -79,13 +98,30 @@
 
 .task-total{
     font-size: 13px;
+    border: 1px solid white;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.task-total.t{
+}
+
+.task-total.c{
+    background-color: rgb(0, 107, 0);
 
 }
 
+.task-total.u{
+    background-color: rgb(116, 0, 0);
+}
+
+
 .completed{
-    color: green;
+    color: white;
 }
 
 .uncompleted{
-    color: yellow;
+    color: white;
 }

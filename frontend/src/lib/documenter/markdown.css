@@ -143,6 +143,7 @@ code {
     justify-content: center;
     align-items: center;
     gap: 10px;
+    margin-bottom: 5px;
 }
 
 .toolbox-change-mode-edit-markdown{
